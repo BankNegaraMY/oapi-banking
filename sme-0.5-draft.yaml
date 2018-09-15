@@ -1,0 +1,291 @@
+openapi: 3.0.1
+info:
+  title: 'SME Products'
+  version: '0.5-draft'
+  description: 'This specification includes all relevant artefacts for SME Products API Specification. In Malaysia, product aggregators have to obtain product information on cards through either web scraping or entering into exclusive arrangement with the financial institutions. Through standardized API, third parties including fintech companies are able to develop solutions which target retail SME customers.'
+  contact:
+    name: 'BNM Open API Team'
+    email: 'oapi@bnm.gov.my'
+servers:
+  - url: 'https://api.sample.com'
+    description: 'Production server URL'
+  - url: 'https://api.test.sample.com'
+    description: 'Staging server URL'
+paths:
+  /sme:
+    get:
+      tags:
+        - 'Endpoint for getting SME Product details'
+      summary: 'Retrieve the detail of SME products'
+      description: 'This API endpoint will return all SME products offered by the bank'
+      operationId: getProducts
+      responses:
+        '200':
+          description: 'Successful response'
+          content:
+            application/json:
+              schema:
+                title: Sample
+                type: object
+                properties:
+                  meta:
+                    type: object
+                    properties:
+                      last_updated:
+                        type: string
+                        description: 'Last updated date of product list'
+                        example: '2018-09-14T17:30:12.345+08:00'
+                      version:
+                        type: string
+                        description: 'API version'
+                        example: '0.1-dev'
+                      total_result:
+                        type: string
+                        description: 'Number of products returned'
+                        example: 3
+                  providers:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: 'Bank name'
+                        example: 'Bank Islam'
+                      identifier:
+                        type: string
+                        description: 'First 4 characters of SWIFT code'
+                        example: 'BIMB'
+                      agreement:
+                        type: string
+                        enum:
+                          - ['Use of the APIs and any related data will be subject to terms and conditions']
+                      term_of_use:
+                        type: string
+                        description: 'URL for Terms and Condition'
+                        example: 'https://www.bankislam.biz'
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_details:
+                          type: object
+                          required:
+                            - name
+                            - shariah_compliance
+                            - contract_type
+                            - pds_url
+                          properties:
+                            name:
+                              type: string
+                              description: 'Product name'
+                              example: 'Letter of Credit-i (LC-i)'
+                            description:
+                              type: string
+                              description: 'Product description'
+                              example: 'A written undertaking by the Bank at the request of a Buyer / Applicant to pay the Seller / Beneficiary a certain sum of money as stipulated in the LC-i provided that the Seller / Beneficiary complies with the terms and conditions of the LC-i'
+                            shariah_compliance:
+                              type: string
+                              enum:
+                                - 'Y'
+                                - 'N'
+                              maximum: 1
+                              description: 'The indicator for Islamic or Conventional product'
+                              example: 'Y'
+                            contract_type:
+                              type: string
+                              description: 'Type of contract offered by product'
+                              example: 'Wakalah'
+                            pds_url:
+                              type: string
+                              description: 'URL for product disclosure sheet'
+                              example: 'http://www.bankislam.com.my/home/business-banking/trade-financing/letter-of-credit-i-lc-i/'
+                            disclaimer:
+                              type: string
+                              description: 'URL for product disclaimer'
+                              example: 'http://www.bankislam.com.my/home/business-banking/trade-financing/letter-of-credit-i-lc-i/'
+                        requirements:
+                          type: object
+                          properties:
+                            business_entity_type:
+                              type: string
+                              description: 'Indicate the business entity of company that qualifies for this loan'
+                              example: 'Sole Proprietor'
+                            business_classification:
+                              type: string
+                              description: 'Indicate the business class of company this loan is offered to (Micro Enterprise, Small Enterprise, SME etc)'
+                              example: 'Business complies with the National SME Development Council (NSDC’s) definition of Micro Enterprises'
+                            years_in_operation:
+                              type: integer
+                              description: 'Indicate the minimum years in operation of a company that qualifies for this loan'
+                              example: 3
+                            min_sales_turnover:
+                              type: integer
+                              description: 'Indicate the minimum company annual revenue within its business classification'
+                              example: 500000
+                            max_sales_turnover:
+                              type: integer
+                              description: 'Indicate the maximum company annual revenue within its business classification'
+                              example: 500000
+                            bumiputra_status:
+                              type: string
+                              maximum: 1
+                              description: 'Indicate the company is bumiputra status or not'
+                              enum:
+                                - 'Y'
+                                - 'N'
+                              example: 'Y'
+                            bumiputra_ownership:
+                              type: integer
+                              maximum: 100
+                              description: 'Indicate the percentage of Bumiputera ownership shareholders in the company'
+                              example: 51
+                            business_sector:
+                              type: string
+                              description: 'Indicate the industry of company this loan is offered to'
+                              example: ' Applicants must have an on-going business and SMEs from all economic sectors are eligible for this scheme'
+                            eligibility_status:
+                              type: string
+                              description: 'Indicate the status of applicant when applying for this loan'
+                              example: 'Doctors & dentists who are members of Malaysian Medical Council (MMC)/ Malaysian Dental Council (MDC)'
+                            miscellaneous:
+                              type: string
+                              description: 'Any other eligibility requirements that are bank-specific'
+                              example: 'Operating company and investment holding company'
+                        product_offering:
+                          type: object
+                          properties:
+                            product_offering_details:
+                              type: object
+                              properties:
+                                financing_type:
+                                  type: integer
+                                  enum:
+                                    - 1
+                                    - 2
+                                  description: 'Indicate the type of loan. Acceptable values: 1 = Secured, 2 = Unsecured.'
+                                  example: 1
+                                margin_of_financing:
+                                  type: integer
+                                  description: 'Indicate the amount of loan can be borrowed by applicant (for secured loan only)'
+                                  example: 5000000
+                                lock_in_period:
+                                  type: integer
+                                  description: 'Indicate the period which a loan cannot be paid off earlier than scheduled (for secured loan only)'
+                                  example: 5
+                                min_amount:
+                                  type: integer
+                                  description: 'Indicate the minimum borrowing amount of loan'
+                                  example: 100000
+                                max_amount:
+                                  type: integer
+                                  description: 'Indicate the maximum borrowing amount of loan'
+                                  example: 200000
+                                min_tenure:
+                                  type: integer
+                                  description: 'Indicate the minimum borrowing period of loan in year'
+                                  example: 1
+                                max_tenure:
+                                  type: integer
+                                  description: 'Indicate the maximum borrowing period of loan in year'
+                                  example: 5
+                                indicative_interest_profit_rate:
+                                  type: number
+                                  description: 'Indicate the indicative rate of interest/profit charged to this loan'
+                                  example: 4.0
+                                interest_profit_rate:
+                                  type: string
+                                  description: 'Indicate the type of interest/profit rate applied to this loan (Flat/Fixed, Floating/Variable)'
+                                  example: 'Flat'
+                                facility_type:
+                                  type: string
+                                  description: 'Indicate the type of facility offered in this loan'
+                                  example: 'Murabahah Term Financing-i (CMTF-i)'
+                                financing_purpose:
+                                  type: string
+                                  description: 'Indicate the purpose of financing with this loan'
+                                  example: 'Working Capital'
+                                asset_type:
+                                  type: string
+                                  description: 'Indicate the type of asset/property that can be purchased with this loan'
+                                  example: 'Shop offices'
+                                miscellaneous:
+                                  type: string
+                                  description: 'Any other features that are bank-specific'
+                                  example: 'Payment is to be channeled directly to the Bank'
+                        fees_charges:
+                          type: object
+                          properties:
+                            fees_charges_details:
+                              type: object
+                              properties:
+                                stamp_duty:
+                                  type: string
+                                  maximum: 1
+                                  enum:
+                                    - 'Y'
+                                    - 'N'
+                                  description: 'Statutory fee that is applied to this loan'
+                                  example: 'Y'
+                                processing_fee:
+                                  type: integer
+                                  description: 'Fee for processing the loan in MYR'
+                                  example: 200
+                                legal_and_disbursement:
+                                  type: string
+                                  maximum: 1
+                                  enum:
+                                    - 'Y'
+                                    - 'N'
+                                  description: 'Fee for loan documentation'
+                                  example: 'Y'
+                                late_payment_charge:
+                                  type: string
+                                  maximum: 1
+                                  enum:
+                                    - 'Y'
+                                    - 'N'
+                                  description: 'Charge applied when borrower is in arrears'
+                                  example: 'Y'
+                                early_termination:
+                                  type: string
+                                  maximum: 1
+                                  enum:
+                                    - 'Y'
+                                    - 'N'
+                                  description: 'Fee applied when borrower redeem the loan ahead of maturity'
+                                  example: 'Y'
+                                miscellaneous:
+                                  type: string
+                                  maximum: 500
+                                  description: 'Any other fees and charges that are bank-specific'
+                                  example: 'Commission is charged based on the amount and period of guarantee at rates ranging from 0.05% per mensem to 0.125% per mensem with a minimum charge of RM25'
+                        required_documents:
+                          type: object
+                          properties:
+                            category:
+                              type: integer
+                              enum:
+                                - 1
+                                - 2
+                              description: 'Category of document. Acceptable values: 1 = Statutory, 2 = Financial and Management related, 3 = Others'
+                            documents:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  name:
+                                    type: string
+                                    maximum: 100
+                                    description: 'Description of document'
+                                    example: 'Memorandum & Article of Association'
+                                  description:
+                                    type: string
+                                    maximum: 500
+                                    description: 'Additional notes on required document'
+                                    example: 'To be submitted a certified true copy'
+        '404':
+          description: 404 Product not found
+        '500':
+          description: 500 Internal server error
+        '504':
+          description: 504 Gateway timeout
