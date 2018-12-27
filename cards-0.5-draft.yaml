@@ -15,20 +15,24 @@ paths:
   /cards:
     get:
       tags:
-        - 'Endpoint for getting Card Product details'
+        - 'Cards'
       summary: 'Retrieve the detail of card products'
       description: 'This API endpoint will return all card products based on parameter provided'
       operationId: getProducts
+      security:
+        - default: [public]
       parameters:
-        - name: product_type
+        - name: card_type
           in: query
-          description: 'Type of products, e.g. credit card, charge card, debit card'
+          description: 'Type of card'
           schema:
             type: string
             enum:
-              - 'credit_card'
+              - 'all'
               - 'charge_card'
+              - 'credit_card'
               - 'debit_card'
+              - 'prepaid_card'
             default: 'credit_card'
       responses:
         200:
@@ -41,7 +45,16 @@ paths:
                 properties:
                   meta:
                     type: object
+                    required:
+                      - bic_code
+                      - last_updated
+                      - version
+                      - total_result
                     properties:
+                      bic_code:
+                        type: string
+                        maxLength: 8
+                        description: '8-characters SWIFT code'
                       last_updated:
                         type: string
                         format: date-time
@@ -49,35 +62,17 @@ paths:
                         example: '2018-09-14T17:30:12.345+08:00'
                       version:
                         type: string
-                        description: 'API version'
+                        description: 'API version as published https://github.com/BankNegaraMY/oapi-banking'
                         example: '0.1-dev'
                       total_result:
-                        type: string
+                        type: integer
                         description: 'Number of products returned'
                         example: 3
-                  providers:
-                    type: object
-                    required:
-                      - name
-                      - identifier
-                    properties:
-                      name:
+                      campaign_url:
                         type: string
-                        description: 'Bank name'
-                        maximum: 100
-                        example: 'Maybank'
-                      identifier:
-                        type: string
-                        description: 'First 4 characters of SWIFT code'
-                        maximum: 4
-                        example: 'MBBE'
-                      agreement:
-                        type: string
-                        enum: ['Use of the APIs and any related data will be subject to terms and conditions']
-                      term_of_use:
-                        type: string
-                        description: 'URL for Terms and Conditions'
-                        example: 'https://maybanksandbox.com/assets/TermsandConditionsofMaybankSandbox.pdf'
+                        maxLength: 500
+                        description: 'Absolute URL to active campaign or promotions'
+
                   data:
                     type: array
                     items:
@@ -97,254 +92,188 @@ paths:
                             name:
                               type: string
                               description: 'Product name'
-                              maximum: 150
+                              maxLength: 150
                               example: 'Visa Signature'
                             description:
                               type: string
                               description: 'Product description'
+                              maxLength: 500
                               example: 'Visa Signature is a Credit Card that provides not just only rewards but with additional privileges'
                             product_type:
                               type: string
                               description: 'Type of product'
                               enum:
-                                - 'Amex'
-                                - 'MasterCard'
-                                - 'Visa'
-                              example: 'Visa'
+                                - 'american_express'
+                                - 'jcb'
+                                - 'mastercard'
+                                - 'mydebit'
+                                - 'others'
+                                - 'switch'
+                                - 'unionpay'
+                                - 'visa'
+                              example: 'visa'
                             sub_product_type:
                               type: string
                               enum:
-                                - 'World'
-                                - 'Infinite'
-                                - 'Signature'
-                                - 'Platinum'
-                                - 'Gold'
-                                - 'Classic'
+                                - 'black'
+                                - 'classic'
+                                - 'commercial'
+                                - 'diamond'
+                                - 'electron'
+                                - 'generic'
+                                - 'gold'
+                                - 'infinite'
+                                - 'infinite_privilege'
+                                - 'maestro'
+                                - 'others'
+                                - 'platinum'
+                                - 'reserve'
+                                - 'signature'
+                                - 'world'
+                                - 'world_elite'
                               description: 'Type of sub-product'
-                              example: 'Signature'
+                              example: 'classic'
                             shariah_compliance:
-                              type: string
-                              enum:
-                                - 'Y'
-                                - 'N'
-                              maximum: 1
+                              type: boolean
                               description: 'The indicator for Islamic or Conventional card'
-                              example: 'Y'
+                              example: false
+                            shariah_compliance_remark:
+                              type: string
+                              maxLength: 500
+                              description: 'Approval body for shariah compliance'
                             card_type:
                               type: string
                               enum:
-                                - 'Credit Card'
-                                - 'Debit Card'
-                                - 'Charge Card'
+                                - 'credit_card'
+                                - 'debit_card'
+                                - 'charge_card'
+                                - 'prepaid_card'
                               description: 'Type of card'
-                              example: 'Credit Card'
+                              example: 'credit_card'
                             pds_url:
                               type: string
+                              format: uri
                               description: 'URL for product disclosure sheet'
-                              maximum: 500
-                              example: 'https://www.maybank.com/pdf/Cards/pds/pds_credit_pbb.aspx'
-                            image_type:
+                              maxLength: 500
+                            image_url:
                               type: string
-                              description: 'Type of image. Acceptable values are: 1 = URL, 2 = SVG.'
-                              enum:
-                                - 1
-                                - 2
-                              example: 2
-                            image_value:
+                              format: uri
+                              description: 'Absolute URL to image in SVG format'
+                              maxLength: 500
+                            disclaimer_url:
                               type: string
-                              description: 'URL to image, or base64 encoded value for SVG type'
-                              example: 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i...'
-                            disclaimer:
-                              type: string
-                              description: 'URL for product disclaimer'
-                              maximum: 500
-                              example: 'https://www.maybank2u.com.my/iwov-resources/pdf/personal/cards/credit_cards/VisaSignature_tnc.pdf'
+                              format: uri
+                              description: 'Absolute URL for product disclaimer'
+                              maxLength: 500
                         requirements:
                           type: object
-                          required:
-                            - nationality
-                            - residency
-                            - employment_status
-                            - account_holder_flag
                           properties:
-                            nationality:
-                              type: integer
-                              enum:
-                                - 0
-                                - 1
-                                - 2
-                              description: 'Nationality of the applicant.  Acceptable values are: 1 = Malaysian, 2 = Non-Malaysian, 0 = Any. ANY is referring to all nationalities.'
-                              example: 1
-                            residency:
-                              type: integer
-                              enum:
-                                - 0
-                                - 1
-                                - 2
-                              description: 'Resident status of the applicant. Acceptable values are: 1 = Resident, 2 = Non-resident, 0 = Any. ANY is referring to resident and non-resident.'
-                              example: 1
-                            employment_status:
-                              type: integer
-                              enum:
-                                - 1
-                                - 2
-                              description: 'Employment status of the applicant. Acceptable values are: 1 = Employed, 2 = Self-employed.'
-                              example: 1
-                            min_annual_income:
-                              type: integer
-                              description: 'Minimum annual income in MYR'
-                              example: 70000
-                            account_holder_flag:
-                              type: string
-                              maximum: 1
-                              enum:
-                                - 'Y'
-                                - 'N'
-                              description: 'Requirement to have account with the bank'
-                              example: 'Y'
-                            age_range:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  type:
-                                    type: string
-                                    enum:
-                                      - 'Principal'
-                                      - 'Supplementary'
-                                    description: 'Type of the card application'
-                                    example: 'Principal'
-                                  min_age:
-                                    type: integer
-                                    description: 'Minimum age of applicant'
-                                    example: 21
-                                  max_age:
-                                    type: integer
-                                    description: 'Maximum age of applicant'
-                                    example: 65
-                        product_offering:
-                          type: object
-                          required:
-                            - category
-                            - type
-                            - flag
-                            - description
-                          properties:
-                            product_offering_details:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  category:
-                                    type: integer
-                                    enum:
-                                      - 1
-                                      - 2
-                                    description: 'Type of offering. Acceptable values are: 1 = Benefit, 2 = Feature.'
-                                    example: 1
-                                  type:
-                                    type: string
-                                    description: 'Group or detail of offering'
-                                    example: 'Cash Back'
-                                  flag:
-                                    type: string
-                                    enum:
-                                      - 'Y'
-                                      - 'N'
-                                    maximum: 1
-                                    description: 'The indicator of the offering availability'
-                                    example: 'Y'
-                                  description:
-                                    type: string
-                                    maximum: 500
-                                    description: 'Description or additional notes of the offering'
-                                    example: 'Contactless limit is 250'
-                        fees_charges:
-                          type: object
-                          required:
-                            - category
-                            - type
-                            - chargeable
-                          properties:
-                            fees_charges_details:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  category:
-                                    type: integer
-                                    enum:
-                                      - 1
-                                      - 2
-                                    description: 'Fees or charges indicator. Acceptable values are: 1 = Fees, 2 = Charges.'
-                                    example: 1
-                                  chargeable:
-                                    type: string
-                                    maximum: 1
-                                    enum:
-                                      - 'Y'
-                                      - 'N'
-                                    description: 'Indicator of chargeability'
-                                    example: 'Y'
-                                  type:
-                                    type: string
-                                    maximum: 50
-                                    description: 'Type of the fees or charges'
-                                    example: 'Annual Fee'
-                                  description:
-                                    type: string
-                                    maximum: 500
-                                    description: 'The description of the fees and charges'
-                                    example: 'Annual charge is 18% pa'
-                        required_documents:
-                          type: object
-                          required:
-                            - category
-                            - resident_flag
-                          properties:
-                            category:
-                              type: integer
-                              enum:
-                                - 0
-                                - 1
-                                - 2
-                              description: 'Category of applicant. Acceptable values: 1 = Malaysian, 2 = Non-Malaysian, 0 = Any.'
-                              example: 1
-                            resident_flag:
-                              type: integer
-                              enum:
-                                - 0
-                                - 1
-                                - 2
-                              description: 'Residency of applicant. Acceptable values: 1 = Resident, 2 = Non-resident, 0 = Any.'
-                              example: 1
-                            documents:
+                            requirement_detail:
                               type: array
                               items:
                                 type: object
                                 required:
-                                  - type
-                                  - name
-                                  - flag
+                                  - nationality
+                                  - residency
+                                  - employment_status
                                 properties:
-                                  type:
-                                    type: integer
+                                  nationality:
+                                    type: string
                                     enum:
-                                      - 0
-                                      - 1
-                                      - 2
-                                    description: 'Category of document. Acceptable value: 1 = Identification, 2 = Income, 0 = Others.'
-                                    example: 1
-                                  name:
+                                      - "malaysian"
+                                      - "non_malaysian"
+                                      - "any"
+                                    description: 'Nationality of the applicant'
+                                  nationality_remark:
                                     type: string
-                                    maximum: 100
-                                    description: 'Description of document'
-                                    example: 'MyKad'
-                                  description:
+                                    maxLength: 500
+                                    description: 'Remark on nationality'
+                                  residency:
                                     type: string
-                                    maximum: 500
-                                    description: 'Additional notes on required document'
-                                    example: 'Previous 3 months of salary slip'
+                                    enum:
+                                      - 'resident'
+                                      - 'non_resident'
+                                      - 'any'
+                                    description: 'Resident status of the applicant'
+                                  account_holder_flag:
+                                    type: boolean
+                                    description: 'Requirement to have account with the bank'
+                                    example: true
+                                  applicant:
+                                    type: array
+                                    items:
+                                      type: object
+                                      required:
+                                        - application_type
+                                      properties:
+                                        application_type:
+                                          type: string
+                                          enum:
+                                            - 'principal'
+                                            - 'supplementary'
+                                            - 'any'
+                                          description: 'Type of the card application'
+                                          example: 'principal'
+                                        employment_status:
+                                          type: string
+                                          enum:
+                                            - 'employed'
+                                            - 'self_employed'
+                                            - 'graduate'
+                                            - 'others'
+                                            - 'any'
+                                          description: 'Employment status of the applicant'
+                                        min_age:
+                                          type: integer
+                                          minimum: 1
+                                          maximum: 110
+                                          description: 'Minimum age of applicant'
+                                          example: 21
+                                        max_age:
+                                          type: integer
+                                          minimum: 1
+                                          maximum: 110
+                                          description: 'Maximum age of applicant'
+                                          example: 65
+                                        min_annual_income:
+                                          type: integer
+                                          description: 'Minimum annual income'
+                                          example: 70000
+                                        min_annual_income_currency_code:
+                                          type: string
+                                          maxLength: 3
+                                          description: 'ISO-4217 3 characters currency code for minimum annual income'
+                                          default: 'MYR'
+                                        document:
+                                          type: array
+                                          items:
+                                            type: object
+                                            $ref: '#/components/schemas/Document'
+                        product_offerings:
+                          type: object
+                          properties:
+                            product_offering_detail:
+                              type: array
+                              items:
+                                type: object
+                                oneOf:
+                                  - $ref: '#/components/schemas/Reward'
+                                  - $ref: '#/components/schemas/AirMiles'
+                                  - $ref: '#/components/schemas/Feature'
+                                discriminator:
+                                  propertyName: category
+                                  mapping:
+                                    reward_cashback: '#/components/schemas/Reward'
+                                    air_miles: '#/components/schemas/AirMiles'
+                                    feature_benefit: '#/components/schemas/Feature'
+                        fees_charges:
+                          type: object
+                          properties:
+                            fee_charge_detail:
+                              type: array
+                              items:
+                                type: object
+                                $ref: '#/components/schemas/FeeCharge'
                         promotions:
                           type: object
                           properties:
@@ -360,17 +289,294 @@ paths:
                               example: '2018-07-15'
                             description:
                               type: string
+                              maxLength: 500
                               description: 'Description of promotion'
                               example: '2018 FIFA World Cup campaign. Swipe to win a Mercedes!'
                             url:
                               type: string
-                              description: 'URL to access further detail on promotion'
-                              example: 'https://www.maybank2u.com.my/maybank2u/malaysia/en/personal/cards/cards_landing.page'
-        '404':
-          description: '404 Product not found'
+                              format: uri
+                              maxLength: 500
+                              description: 'Absolute URL to access further detail on promotion'
+          headers:
+            Strict-Transport-Security:
+              schema:
+                type: string
+                description: 'HTTPS strict transport security header'
+                default: "max-age=31536000; includeSubDomains; preload"
+            X-Frame-Options:
+              schema:
+                type: string
+                description: "Prevent this request from being loaded in any iframes"
+                default: "DENY"
+            X-Content-Type-Options:
+              schema:
+                type: string
+                description: "Prevent content sniffing where no mimetype is sent"
+                default: "nosniff"
 
-        '500':
-          description: '500 Internal server error'
+        default:
+          $ref: '#/components/responses/default'
 
-        '504':
-          description: '504 Gateway timeout'
+components:
+  responses:
+    default:
+      description: 'Unexpected error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    default:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            public: Read-only access to public data
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          enum:
+            - 400
+            - 408
+            - 429
+            - 500
+            - 503
+          description: 'Error code as listed in RFC2616 Status Code Definitions'
+        message:
+          type: string
+          maxLength: 100
+    Reward:
+      allOf:
+        - type: object
+          required:
+            - category
+            - item
+          properties:
+            category:
+              type: string
+              enum:
+                - 'reward_cashback'
+              description: 'Type of offering'
+            item:
+              type: string
+              enum:
+                - 'bookstore'
+                - 'cashless_transaction'
+                - 'cinema'
+                - 'department_store'
+                - 'dining'
+                - 'education'
+                - 'entertainment'
+                - 'express_autopay'
+                - 'gold'
+                - 'groceries'
+                - 'highway'
+                - 'hotel'
+                - 'installment_plan'
+                - 'insurance_premium'
+                - 'local_retail'
+                - 'membership_day'
+                - 'mobile_telco'
+                - 'myeg_services'
+                - 'online_air_ticket'
+                - 'online_bill_payment'
+                - 'online_shopping'
+                - 'others'
+                - 'oversea_retail'
+                - 'petrol'
+                - 'pharmacy'
+                - 'retail'
+                - 'shopping'
+                - 'touch_n_go'
+                - 'transport'
+                - 'travel'
+                - 'utility_bill'
+                - 'weekend'
+            remark:
+              type: string
+              maxLength: 500
+              description: 'Additional notes for the reward'
+            branding:
+              type: string
+              maxLength: 50
+              description: 'Branding for specific offering'
+            tnc_url:
+              type: string
+              format: uri
+              maxLength: 500
+              description: 'Absolute URL to term and conditions for specific offering'
+    AirMiles:
+      allOf:
+        - type: object
+          required:
+            - category
+            - item
+          properties:
+            category:
+              type: string
+              enum:
+                - 'air_miles'
+              description: 'Type of offering'
+            item:
+              type: string
+              enum:
+                - 'asia_miles'
+                - 'big_point_aasia'
+                - 'enrich_mas'
+                - 'garuda_miles_id'
+                - 'krisfyler_sg'
+                - 'malindo_miles_malindoair'
+                - 'others'
+                - 'star_alliance'
+            remark:
+              type: string
+              maxLength: 500
+              description: 'Additional notes for the air miles'
+            tnc_url:
+              type: string
+              format: uri
+              maxLength: 500
+              description: 'Absolute URL to term and conditions for specific offering'
+    Feature:
+      allOf:
+        - type: object
+          required:
+            - category
+            - item
+          properties:
+            category:
+              type: string
+              enum:
+                - 'feature_benefit'
+              description: 'Type of offering'
+            item:
+              type: string
+              enum:
+                - 'airport_speed_pass'
+                - 'annual_fee_waiver'
+                - 'auto_bill_payment'
+                - 'balance_transfer_plan'
+                - 'cash_advance'
+                - 'cash_installment_plan'
+                - 'cash_withdrawal'
+                - 'charity_fund'
+                - 'cinema'
+                - 'concierge_services'
+                - 'contactless'
+                - 'dining_privileges'
+                - 'discount'
+                - 'easy_payment_plan'
+                - 'ecommerce_insurance'
+                - 'emergency_cheque_cashing'
+                - 'entertainment'
+                - 'global_assistance'
+                - 'golf'
+                - 'groceries'
+                - 'others'
+                - 'partnership_discount'
+                - 'petrol'
+                - 'plaza_premium_lounge'
+                - 'retail_insurance'
+                - 'shopping'
+                - 'travel'
+                - 'travel_insurance'
+                - 'wallet_guard'
+            branding:
+              type: string
+              maxLength: 50
+              description: 'Branding for specific offering'
+            remark:
+              type: string
+              maxLength: 500
+              description: 'Additional notes for the feature'
+            tnc_url:
+              type: string
+              format: uri
+              maxLength: 500
+              description: 'Absolute URL to term and conditions for specific offering'
+    FeeCharge:
+      type: object
+      required:
+        - item
+      properties:
+        item:
+          type: string
+          enum:
+            - 'actual_monthly_management'
+            - 'annual'
+            - 'atm_withdrawal'
+            - 'card_replacement'
+            - 'cash_advance'
+            - 'cash_withdrawal'
+            - 'early_settlement'
+            - 'finance_charge_cash_advance'
+            - 'finance_charge_retail'
+            - 'fixed_monthly_management'
+            - 'late_payment'
+            - 'minimum_monthly_payment'
+            - 'others'
+            - 'oversea_transaction'
+            - 'oversea_transaction_conversion'
+            - 'sales_draft_retrieval_copy'
+            - 'service_tax'
+            - 'starter_pack'
+            - 'statement_copy'
+        chargeable:
+          type: boolean
+          description: 'Indicator of chargeability'
+          example: true
+        amount:
+          type: number
+          format: double
+          description: 'Amount for fee and charge up to two digits decimal'
+          example: 50.00
+        amount_currency_code:
+          type: string
+          maxLength: 3
+          description: 'ISO-4217 3 characters currency code for fee and charge amount'
+          default: 'MYR'
+        percentage:
+          type: number
+          format: double
+          description: 'Percentage of amount for fee and charge up to two digits decimal'
+          example: 10.50
+        remark:
+          type: string
+          maxLength: 500
+          description: 'Additional notes for the fee and charge'
+    Document:
+      type: object
+      required:
+        - 'item'
+      properties:
+        item:
+          type: string
+          description: 'Type of document'
+          enum:
+            - 'bank_statement'
+            - 'business_registration_certificate'
+            - 'commision_statement'
+            - 'dividend_statement'
+            - 'employment_confirmation_letter'
+            - 'epf_statement'
+            - 'form_24'
+            - 'form_49'
+            - 'form_9'
+            - 'identity_card_passport'
+            - 'interest_statement'
+            - 'others'
+            - 'salary_slip'
+            - 'tax_receipt'
+            - 'tax_returns'
+            - 'travel_visa'
+            - 'valid_work_permit'
+          example: 'salary_slip'
+        remark:
+          type: string
+          maxLength: 500
+          description: 'Additional note for the document'
+          example: 'To submit latest 3 months salary'
