@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: 'SME Products'
-  version: '0.5-draft'
+  version: '1.0.0'
   description: 'This specification includes all relevant artefacts for SME Products API Specification. In Malaysia, product aggregators have to obtain product information on cards through either web scraping or entering into exclusive arrangement with the financial institutions. Through standardized API, third parties including fintech companies are able to develop solutions which target retail SME customers.'
   contact:
     name: 'BNM Open API Team'
