@@ -5,7 +5,7 @@ info:
   description: 'This specification includes all relevant artefacts for Cards API Specification. In Malaysia, product aggregators have to obtain product information on cards through either web scraping or entering into exclusive arrangement with the financial institutions. Through standardized API, third parties including fintech companies are able to develop solutions which target retail consumers.'
   contact:
     name: 'BNM Open API Team'
-    email: 'oapi@bnm.gov.my'
+    email: 'openapi@bnm.gov.my'
 servers:
   - url: 'https://api.sample.com'
     description: 'Production server URL'
